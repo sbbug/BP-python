@@ -58,7 +58,7 @@ def loss(Y_,Y):
         :param Y: 期望值
         :return:
     '''
-    return np.power(minus(Y_,Y),2)/2
+    return np.power(minus(Y_,Y),2)
 #计算w2的偏导数，并返回
 def wODer(Y_,Y,out,hout):
 
@@ -103,7 +103,6 @@ if __name__ == "__main__":
     learning_rate=0.005
 
     for step in range(1000):
-
             #计算h层输出
             hin = xs.dot(w1)
             # print("h层计算输出")
@@ -126,18 +125,19 @@ if __name__ == "__main__":
             # print(out)
 
             print("损失")
-            print(round( np.sum(loss(out,ys)),6))
+            print(round(np.square(Y_ - ys).sum(),6))
             if step%50==0:
-               losses.append(round( np.sum(loss(out,ys)),6))
-
+               losses.append(round(np.square(Y_ - ys).sum(),6))
 
             grad_y_pred =  2*(Y_ - ys)
-            grad_w2 = hout.T.dot(grad_y_pred)
-            grad_h_relu = grad_y_pred.dot(w2.T)
-            grad_h = grad_h_relu.copy()
-            grad_h[hin < 0] = 0
-            grad_w1 = xs.T.dot(grad_h)
+            grad_o_sig = sigDer(out)
+            grad_o_relu = grad_y_pred*grad_o_sig
+            grad_w2 = hout.T.dot(grad_o_relu)
 
+            grad_h_relu = grad_y_pred.dot(w2.T)
+            grad_h_sig = sigDer(hout)
+            grad_h_relu=grad_h_relu*grad_h_sig
+            grad_w1 = xs.T.dot(grad_h_relu)
             # Update weights
             w1 -= learning_rate * grad_w1
             w2 -= learning_rate * grad_w2

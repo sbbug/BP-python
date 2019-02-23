@@ -43,6 +43,7 @@ for step in range(1000):
     # Backprop to compute gradients of w1 and w2 with respect to loss
     grad_y_pred = 2.0 * (y_pred - ys)
     grad_w2 = hout.T.dot(grad_y_pred)
+
     grad_h_relu = grad_y_pred.dot(w2.T)
     grad_h = grad_h_relu.copy()
     grad_h[hin < 0] = 0
