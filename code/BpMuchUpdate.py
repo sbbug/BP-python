@@ -88,7 +88,6 @@ def wHDer(Y_,Y,out,w2,hout,X):
             w[i][j]=t
     return w
 
-
 if __name__ == "__main__":
 
     #定义行向量,仅有一个数据记录
@@ -101,17 +100,12 @@ if __name__ == "__main__":
     w2 = np.random.random((2, 2))
 
     losses = []
+    learning_rate=0.005
 
     for step in range(1000):
-        for i in range(len(xs)):
-
-            X = xs[i]
-            Y = ys[i]
-            # print("输入向量")
-            # print(X)
 
             #计算h层输出
-            hin = dot(w1,X)
+            hin = xs.dot(w1)
             # print("h层计算输出")
             # print(hin)
 
@@ -121,7 +115,7 @@ if __name__ == "__main__":
             # print(hout)
 
             #将h层数据传到o层，并计算输出
-            oin = dot(w2,hout)
+            oin = hout.dot(w2)
             # print("o层输出")
             # print(oin)
 
@@ -132,25 +126,21 @@ if __name__ == "__main__":
             # print(out)
 
             print("损失")
-            print(round( np.sum(loss(out,Y)),6))
+            print(round( np.sum(loss(out,ys)),6))
             if step%50==0:
-               losses.append(round( np.sum(loss(out,Y)),6))
-            #获取最终结果后，对w2层求偏导数,w2的偏导数矩阵是w_2
-            w_2 = wODer(Y_,Y,out,hout)
-            # print("h-o的偏导数")
-            #更新w2
-            w2 = updateW(w2,w_2,0.05)
-            # print("更新后的w2")
-            # print(w2)
+               losses.append(round( np.sum(loss(out,ys)),6))
 
-            #开始对h层的w1进行求偏导数
-            w_1 = wHDer(Y_,Y,out,w2,hout,X)
-            # print("i-h的偏导数")
-            # print(w_1)
 
-            w1 = updateW(w1,w_1,0.05)
-            # print("更新后的w1")
-            # print(w1)
+            grad_y_pred =  2*(Y_ - ys)
+            grad_w2 = hout.T.dot(grad_y_pred)
+            grad_h_relu = grad_y_pred.dot(w2.T)
+            grad_h = grad_h_relu.copy()
+            grad_h[hin < 0] = 0
+            grad_w1 = xs.T.dot(grad_h)
+
+            # Update weights
+            w1 -= learning_rate * grad_w1
+            w2 -= learning_rate * grad_w2
 
     print(losses)
     plt.plot(losses)
